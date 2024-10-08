@@ -1,6 +1,7 @@
 altair==5.4.1
 annotated-types==0.7.0
 anyio==4.6.0
+async-timeout==4.0.3
 attrs==24.2.0
 blinker==1.8.2
 cachetools==5.5.0
@@ -52,6 +53,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2024.2
 PyYAML==6.0.2
+redis==5.1.1
 referencing==0.35.1
 regex==2024.9.11
 requests==2.32.3
