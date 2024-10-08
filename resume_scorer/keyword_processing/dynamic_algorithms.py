@@ -141,11 +141,22 @@ class SimilarityScorer:
             score = self.transform_score(score)
             self.scores.append(score)
 
+
+        def bind_scores(self, x):
+            if x > 0.8:
+                return 1
+            if x < 0.45:
+                return 0
+            var  = x - 0.45
+            ov_args = var / (0.8-0.45)
+            return ov_args
+
+
         def aggregate_similarity(self):
             def sigmoid(x):
                 return 1 / (1 + math.exp(-x))
 
-            return np.tanh(sum(self.scores) / math.sqrt(len(self.scores)) / 2)
+            return np.tanh(self.bind_scores(sum(self.scores) / math.sqrt(len(self.scores)) / 2))
 
         def get_keyword(self):
             return self.keyword
