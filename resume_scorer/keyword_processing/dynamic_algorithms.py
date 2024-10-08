@@ -1,78 +1,197 @@
+import math
+import re
+
+import nltk
 import numpy as np
-import gensim.downloader as api
-from nltk.tokenize import sent_tokenize, word_tokenize
-from nltk.corpus import stopwords
-from nltk.stem import WordNetLemmatizer
-from nltk.util import ngrams
+from functools import lru_cache
+from nltk import WordNetLemmatizer
+from nltk.corpus import stopwords, wordnet
+from nltk.tokenize import word_tokenize, sent_tokenize
+from openai import OpenAI
+from sklearn.metrics.pairwise import cosine_similarity
+from sentence_transformers import SentenceTransformer
 
 
-word_vectors = api.load("glove-wiki-gigaword-100")
-print("Word vectors loaded.")
+class SimilarityScorer:
+    """
+    This is a multi-modal class that utilizes different similarity engines to calculate
+    the similarity scores between keywords and a decently-sized text corpus.
 
-stop_words = set(stopwords.words('english'))
-lemmatizer = WordNetLemmatizer()
-
-
-def preprocess(text):
-    tokens = word_tokenize(text.lower())
-    return [lemmatizer.lemmatize(token) for token in tokens if token.isalnum() and token not in stop_words]
+    Currently, the scorer supports the following similarity engines:
+    `ngram-product`: uses ngram-based similarity, where an average score is generated using ngrams where n in {1, 2, 3}.
+                    this may be computationally intensive.
 
 
-def get_ngrams(text, n=1):
-    tokens = preprocess(text)
-    return [' '.join(gram) for gram in ngrams(tokens, n)]
+    """
 
+    def __init__(self, engine='ngram-product', transformer='paraphrase-MiniLM-L6-v2', verbose=True):
+        self.engine = engine
+        self.verbose = verbose
+        self.model = SentenceTransformer(transformer)
+        self._write_log("Initializing SimilarityScorer")
+        self.lemmatizer = WordNetLemmatizer()
+        self.stop_words = set(stopwords.words('english'))
 
-def get_phrase_embedding(phrase, model):
-    tokens = preprocess(phrase)
-    vectors = [model[word] for word in tokens if word in model]
-    return np.mean(vectors, axis=0) if vectors else None
+    def _write_log(self, log):
+        if self.verbose:
+            print(log)
 
+    def _get_wordnet_pos(self, word):
+        tag = nltk.pos_tag([word])[0][1][0].upper()
+        tag_dict = {"J": wordnet.ADJ,
+                    "N": wordnet.NOUN,
+                    "V": wordnet.VERB,
+                    "R": wordnet.ADV}
+        return tag_dict.get(tag, wordnet.NOUN)
 
-def cosine_similarity(vec1, vec2):
-    return np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+    def preprocess_text(self, text):
+        text = re.sub(r'[^a-zA-Z\s]', '', text.lower())
+        word_tokens = word_tokenize(text)
+        filtered_tokens = [word for word in word_tokens if word not in self.stop_words]
+        lemmatized_tokens = [self.lemmatizer.lemmatize(w, self._get_wordnet_pos(w)) for w in filtered_tokens]
+        return ' '.join(lemmatized_tokens)
 
+    def generate_ngrams(self, text, n):
+        words = text.split()
+        return [' '.join(words[i:i + n]) for i in range(len(words) - n + 1)]
 
-def chunk_text(text, chunk_size=3):
-    sentences = sent_tokenize(text)
-    chunks = [' '.join(sentences[i:i + chunk_size]) for i in range(0, len(sentences), chunk_size)]
-    return chunks
+    def cosine_sim(self, text1, text2):
+        embedding1 = self.get_embedding(text1)
+        embedding2 = self.get_embedding(text2)
+        return cosine_similarity(embedding1, embedding2)[0][0]
 
+    @lru_cache(maxsize=1280)
+    def get_embedding(self, text):
+        return self.model.encode([text])
 
-def keyword_relevance(keywords, text, model=word_vectors, chunk_size=3):
-    chunks = chunk_text(text, chunk_size)
-    relevance_scores = {keyword: {'exact_count': 0, 'max_similarity': 0} for keyword in keywords}
+    def transform_score(self, x):
+        return np.sign(x) * abs(x ** 2)
 
-    for chunk in chunks:
-        chunk_lower = chunk.lower()
-        chunk_embedding = get_phrase_embedding(chunk, model)
+    def calculate_relevance_scores(self, text, keywords):
+        if self.engine == 'ngram-product':
+            return self._calculate_relevance_scores_ngram(text, keywords)
+        elif self.engine == 'sentence-chunk':
+            return self._calculate_relevance_scores_sentence(text, keywords)
+        else:
+            raise ValueError("Invalid engine specified. Use 'ngram-product' or 'sentence-chunk'.")
+
+    def _calculate_relevance_scores_ngram(self, text, keywords):
+        preprocessed_text = self.preprocess_text(text)
+        relevance_scores = {}
 
         for keyword in keywords:
-            # Exact match count (case-insensitive)
-            exact_count = chunk_lower.count(keyword.lower())
-            relevance_scores[keyword]['exact_count'] += exact_count
+            preprocessed_keyword = self.preprocess_text(keyword)
+            max_score = 0
+            best_ngram = ''
+            all_scores = []
 
-            # Semantic similarity
-            keyword_embedding = get_phrase_embedding(keyword, model)
-            if keyword_embedding is not None and chunk_embedding is not None:
-                similarity = cosine_similarity(keyword_embedding, chunk_embedding)
-                relevance_scores[keyword]['max_similarity'] = max(relevance_scores[keyword]['max_similarity'], similarity)
+            for n in [2, 3, 4, 5]:
+                text_ngrams = self.generate_ngrams(preprocessed_text, n)
 
-    # Calculate final scores
-    final_scores = {}
-    for keyword, scores in relevance_scores.items():
-        exact_score = min(scores['exact_count'], 1)  # Cap exact matches at 1
-        similarity_score = scores['max_similarity']
-        final_scores[keyword] = 0.7 * exact_score + 0.3 * similarity_score
+                for ngram in text_ngrams:
+                    similarity = self.cosine_sim(ngram, preprocessed_keyword)
+                    if np.isnan(similarity) or similarity is None:
+                        continue
+                    all_scores.append(similarity)
 
-    return final_scores
+                    if similarity > max_score:
+                        max_score = similarity
+                        best_ngram = ngram
+
+            transformed_scores = [self.transform_score(score) for score in all_scores]
+            final_score = np.tanh((sum(transformed_scores) / np.sqrt(len(all_scores))) / 2) if len(
+                all_scores) > 0 else 0
+
+            relevance_scores[keyword] = {
+                'similarity_score': final_score,
+                'best_matching_ngram': best_ngram
+            }
+
+        return relevance_scores
+
+    def _calculate_relevance_scores_sentence(self, text, keywords):
+        sentences = sent_tokenize(text)
+        relevance_scores = {}
+
+        for keyword in keywords:
+            relevance_unit = self.RelevanceUnit(self, keyword)
+            for sentence in sentences:
+                relevance_unit.transform_calculate_sentence(sentence)
+
+            relevance_scores[relevance_unit.get_keyword()] = {
+                'similarity_score': relevance_unit.aggregate_similarity(),
+            }
+
+        return relevance_scores
+
+    class RelevanceUnit:
+
+        def __init__(self, parent, keyword):
+            self.parent = parent
+            self.keyword = keyword
+            self.scores = []
+            self.sentences = []
+
+        def transform_calculate_sentence(self, sentence):
+            self.sentences.append(sentence)
+            score = self.parent.cosine_sim(sentence, self.keyword)
+            self.scores.append(score)
+
+        def aggregate_similarity(self):
+            def sigmoid(x):
+                return 1 / (1 + math.exp(-x))
+
+            return sigmoid(sum(self.scores) / math.sqrt(len(self.scores)) )
+
+        def get_keyword(self):
+            return self.keyword
 
 
-# Example usage
-keywords = ["sql", "python", "java", "scala", "data science", "Amazon Web Services", "sklearn experience", "data"]
-text = """
-Education Details \r\nMay 2013 to May 2017 B.E   UIT-RGPV\r\nData Scientist \r\n\r\nData Scientist - Matelabs\r\nSkill Details \r\nPython- Experience - Less than 1 year months\r\nStatsmodels- Experience - 12 months\r\nAWS- Experience - Less than 1 year months\r\nMachine learning- Experience - Less than 1 year months\r\nSklearn- Experience - Less than 1 year months\r\nScipy- Experience - Less than 1 year months\r\nKeras- Experience - Less than 1 year monthsCompany Details \r\ncompany - Matelabs\r\ndescription - ML Platform for business professionals, dummies and enthusiasts.\r\n60/A Koramangala 5th block,\r\nAchievements/Tasks behind sukh sagar, Bengaluru,\r\nIndia                               Developed and deployed auto preprocessing steps of machine learning mainly missing value\r\ntreatment, outlier detection, encoding, scaling, feature selection and dimensionality reduction.\r\nDeployed automated classification and regression model.\r\nlinkedin.com/in/aditya-rathore-\r\nb4600b146                           Research and deployed the time series forecasting model ARIMA, SARIMAX, Holt-winter and\r\nProphet.\r\nWorked on meta-feature extracting problem.\r\ngithub.com/rathorology\r\nImplemented a state of the art research paper on outlier detection for mixed attributes.\r\ncompany - Matelabs\r\ndescription -
-"""
 
-relevance_scores = keyword_relevance(keywords, text, word_vectors)
+
+
+
+
+def internet_available():
+    try:
+        # Try to connect to a reliable server
+        import socket
+        socket.create_connection(("8.8.8.8", 53), timeout=3)
+        return True
+    except OSError:
+        return False
+
+
+
+def format_resume(resume_text):
+    if not internet_available():
+        print("Internet is not available. Returning original text.")
+        return resume_text
+
+    try:
+        client = OpenAI()
+
+        prompt = f"""Please format the following text into a professional resume:
+
+        {resume_text}
+
+        Ensure the resume is well-structured, includes all relevant information, and follows standard resume 
+        formatting practices. Please do not add any of your personal comments in the response. Just give me the 
+        resume. This is imperative. Do not change the resume. Only format it at a readable state."""
+
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a professional resume writer."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+
+        formatted_resume = response.choices[0].message.content
+        return formatted_resume
+    except Exception as e:
+        print(f"An error occurred while querying ChatGPT: {e}")
+        return resume_text
+
+
 
