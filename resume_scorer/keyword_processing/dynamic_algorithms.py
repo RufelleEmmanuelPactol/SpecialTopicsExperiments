@@ -86,7 +86,7 @@ class SimilarityScorer:
 
             all_scores = []
 
-            for n in [2, 3, 4, 5]:
+            for n in [2, 3]:
                 max_score = 0
                 best_ngram = ''
                 text_ngrams = self.generate_ngrams(preprocessed_text, n)
