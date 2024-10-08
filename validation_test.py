@@ -35,7 +35,7 @@ def get_kvp_store():
 
 kvp_store = get_kvp_store()
 
-keywords = ["Machine Learning", "Application Development", "Backend Development", "Frontend Development",
+keywords = ["Machine Learning", "Application Development", "Web Development",
             "Data Analytics", "Water Plumbing", "Medical Research", "Computer Networks", "Cyber Security",
             "Quantitative Analyst", "Urban Planning", "Material Testing"]
 
@@ -95,7 +95,7 @@ if id_number and first_name and last_name and uploaded_resume is not None:
 
     @st.cache_data
     def calculate_scores(_resume_text, _keywords):
-        scorer = SimilarityScorer(engine='ngram-product', transformer='roberta-base-nli-stsb-mean-tokens')
+        scorer = SimilarityScorer(engine='sentence-chunk', transformer='roberta-base-nli-stsb-mean-tokens')
         return scorer.calculate_relevance_scores(_resume_text, _keywords)
 
     resume_text = process_resume(BytesIO(uploaded_resume.read()))
