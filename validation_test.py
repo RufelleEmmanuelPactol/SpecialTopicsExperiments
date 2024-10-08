@@ -145,7 +145,7 @@ if id_number and first_name and last_name and uploaded_resume is not None:
     results_df['Model Rank'] = results_df['Similarity Score'].rank(ascending=False, method='min')
 
     st.subheader("Keyword Relevance and Ranking")
-    st.write("Please rank the keywords based on their relevance to your resume (1 being most relevant):")
+    st.info("Please rank the keywords based on their relevance to your resume (1 being most relevant):")
     user_rankings = create_interactive_table(results_df)
     if user_rankings is None:
         sys.exit(0)
