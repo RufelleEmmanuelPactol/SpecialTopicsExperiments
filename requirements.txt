@@ -4,12 +4,6 @@ aioitertools==0.7.1
 aiosignal==1.2.0
 alabaster==0.7.12
 altair==4.2.2
-anaconda-anon-usage==0.4.3
-anaconda-catalogs==0.2.0
-anaconda-client==1.12.3
-anaconda-cloud-auth==0.1.4
-anaconda-navigator==2.5.2
-anaconda-project==0.11.1
 anyio==4.2.0
 appdirs==1.4.4
 applaunchservices==0.3.0
