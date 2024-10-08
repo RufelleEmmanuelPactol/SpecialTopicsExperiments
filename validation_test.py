@@ -16,24 +16,30 @@ def create_interactive_table(df):
     if 'ratings' not in st.session_state:
         st.session_state.ratings = {row['Keyword']: 3 for _, row in df.iterrows()}
 
+    rating_options = {
+        1: "1 - Not Accurate",
+        2: "2 - Slightly Accurate",
+        3: "3 - Moderately Accurate",
+        4: "4 - Very Accurate",
+        5: "5 - Extremely Accurate"
+    }
+
     for i, row in df.iterrows():
-        col1, col4 = st.columns([3, 2])
+        col1, col2 = st.columns([3, 2])
         with col1:
             st.write(row['Keyword'])
-        with col4:
-            st.number_input(f"Accuracy (1-Not Accurate, 5-Very Accurate) for {row['Keyword']}",
-                            min_value=1,
-                            max_value=5,
-                            value=st.session_state.ratings[row['Keyword']],
-                            key=f"rating_{row['Keyword']}",
-                            on_change=update_rating,
-                            args=(row['Keyword'],))
+        with col2:
+            selected_rating = st.selectbox(
+                f"Rate accuracy for {row['Keyword']}",
+                options=list(rating_options.keys()),
+                format_func=lambda x: rating_options[x],
+                key=f"rating_{row['Keyword']}",
+                index=st.session_state.ratings[row['Keyword']] - 1
+            )
+            st.session_state.ratings[row['Keyword']] = selected_rating
 
     df_result = pd.DataFrame([(k, v) for k, v in st.session_state.ratings.items()], columns=['Keyword', 'Your Rating'])
     return df_result
-
-def update_rating(keyword):
-    st.session_state.ratings[keyword] = st.session_state[f"rating_{keyword}"]
 
 def create_radar_chart(df):
     fig = go.Figure(data=go.Scatterpolar(
@@ -107,7 +113,7 @@ uploaded_resume = st.file_uploader("Upload your resume (PDF format only)", type=
 
 if id_number and first_name and last_name and uploaded_resume is not None:
     st.markdown("### Thank you for providing your details and resume!")
-    st.markdown("Please rate the accuracy of the model's predictions for each keyword (1 means Not Accurate, 5 means Very Accurate).")
+    st.markdown("Please rate the accuracy of the model's predictions for each keyword using the dropdown menus.")
 
     @st.cache_data
     def process_resume(file_content):
@@ -127,7 +133,7 @@ if id_number and first_name and last_name and uploaded_resume is not None:
     results_df = results_df.sort_values('Similarity Score', ascending=False)
 
     st.subheader("Keyword Relevance and Rating")
-    st.info("Please rate the accuracy of the model's predictions for each keyword (1 being not accurate, 5 being very accurate):")
+    st.info("Please rate the accuracy of the model's predictions for each keyword using the dropdown menus:")
     user_ratings = create_interactive_table(results_df)
 
 if st.button("Confirm and Submit"):
