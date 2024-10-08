@@ -4,15 +4,13 @@ import re
 import nltk
 import numpy as np
 from functools import lru_cache
-
-import streamlit.logger
 from nltk import WordNetLemmatizer
 from nltk.corpus import stopwords, wordnet
-from nltk.tokenize import word_tokenize, sent_tokenize
+from nltk.tokenize import word_tokenize
 from openai import OpenAI
 from sklearn.metrics.pairwise import cosine_similarity
 from sentence_transformers import SentenceTransformer
-
+from resume_scorer.keyword_processing.tokenizers import preprocess_text, chunk_text
 
 class SimilarityScorer:
     """
@@ -85,10 +83,10 @@ class SimilarityScorer:
             preprocessed_keyword = self.preprocess_text(keyword)
 
             all_scores = []
+            max_score = 0
+            best_ngram = ''
+            for n in [3, 4, 5 ]:
 
-            for n in [2, 3]:
-                max_score = 0
-                best_ngram = ''
                 text_ngrams = self.generate_ngrams(preprocessed_text, n)
 
                 for ngram in text_ngrams:
@@ -110,12 +108,19 @@ class SimilarityScorer:
                 'best_matching_ngram': best_ngram
             }
 
-        streamlit.logger.get_logger(__name__).info(relevance_scores)
+        print(relevance_scores)
 
         return relevance_scores
 
     def _calculate_relevance_scores_sentence(self, text, keywords):
-        sentences = sent_tokenize(text)
+        sentences = preprocess_text(text)
+        sentences = chunk_text(sentences, max_chunk_size=24, overlap=8)
+        print('[ilo]', sentences)
+
+
+
+        print('TOKENIZED SENTENCES', sentences)
+        print('LENGTH OF IT', len(sentences))
         relevance_scores = {}
 
         for keyword in keywords:
@@ -140,10 +145,18 @@ class SimilarityScorer:
         def transform_score(self, x):
             return np.sign(x) * abs(x ** 2)
 
+        def pairwise_max(self, scores, sentences):
+            i = 0
+            for x in range(len(scores)):
+                if scores[x] > scores[i]:
+                    i = x
+            return sentences[i]
+
+
         def transform_calculate_sentence(self, sentence):
             self.sentences.append(sentence)
             score = self.parent.cosine_sim(sentence, self.keyword)
-            score = self.transform_score(score)
+            #score = self.transform_score(score)
             self.scores.append(score)
 
 
@@ -160,8 +173,8 @@ class SimilarityScorer:
         def aggregate_similarity(self):
             def sigmoid(x):
                 return 1 / (1 + math.exp(-x))
-
-            return np.tanh(sum(self.scores) / math.sqrt(len(self.scores)) )
+            print(f'MAX RESULT[{self.keyword}]', self.pairwise_max(self.scores, self.sentences))
+            return sigmoid(sum(self.scores) / np.sqrt(len(self.scores)) ** 2)
 
         def get_keyword(self):
             return self.keyword
@@ -212,6 +225,5 @@ def format_resume(resume_text):
     except Exception as e:
         print(f"An error occurred while querying ChatGPT: {e}")
         return resume_text
-
 
 

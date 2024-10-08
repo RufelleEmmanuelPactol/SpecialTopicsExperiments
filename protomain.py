@@ -2,10 +2,11 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 
+
 from resume_scorer.free_form_text.kernels import CrossProductSimilarity, NgramCrossProductSimilarity
 from resume_scorer.resume_preprocessing.deconstructor import pdf_to_text
 from io import BytesIO
-from streamlit_tags import st_tags
+
 from resume_scorer.keyword_processing.dynamic_algorithms import SimilarityScorer, format_resume
 import os
 import dotenv
@@ -43,12 +44,17 @@ def resume_keyword_scorer_app():
 
     uploaded_file = st.file_uploader("Choose a PDF resume", type="pdf")
 
-    keywords = st_tags(
+    keywords = ["Machine Learning", "Android Development", "Frontend Development", "Backend Development",
+                "Data Analytics", "Development Operations", "Cyber Security", "Data Scraping", "Cloud Engineering",
+                "Quantitative Analysis", "Data Engineering"]
+
+
+    x = """st_tags(
         label='Keyword Introspection:',
         text='Add the keywords you want to use here...',
         suggestions=[],
         maxtags=-1,
-    )
+    )"""
 
     if st.button("Start Introspection") and uploaded_file is not None and keywords:
         pdf_bytes = uploaded_file.read()
