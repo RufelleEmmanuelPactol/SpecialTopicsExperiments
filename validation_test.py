@@ -10,36 +10,6 @@ from blob_store import PersistentKVP
 from resume_scorer.keyword_processing.dynamic_algorithms import SimilarityScorer, format_resume
 import plotly.graph_objects as go
 from resume_scorer.resume_preprocessing.deconstructor import pdf_to_text
-user_ratings = None
-
-def create_interactive_table(df):
-    if 'ratings' not in st.session_state:
-        st.session_state.ratings = {row['Keyword']: 3 for _, row in df.iterrows()}
-
-    rating_options = {
-        1: "1 - Not Accurate",
-        2: "2 - Slightly Accurate",
-        3: "3 - Moderately Accurate",
-        4: "4 - Very Accurate",
-        5: "5 - Extremely Accurate"
-    }
-
-    for i, row in df.iterrows():
-        col1, col2 = st.columns([3, 2])
-        with col1:
-            st.write(row['Keyword'])
-        with col2:
-            selected_rating = st.selectbox(
-                f"Rate accuracy for {row['Keyword']}",
-                options=list(rating_options.keys()),
-                format_func=lambda x: rating_options[x],
-                key=f"rating_{row['Keyword']}",
-                index=st.session_state.ratings[row['Keyword']] - 1
-            )
-            st.session_state.ratings[row['Keyword']] = selected_rating
-
-    df_result = pd.DataFrame([(k, v) for k, v in st.session_state.ratings.items()], columns=['Keyword', 'Your Rating'])
-    return df_result
 
 def create_radar_chart(df):
     fig = go.Figure(data=go.Scatterpolar(
@@ -113,7 +83,6 @@ uploaded_resume = st.file_uploader("Upload your resume (PDF format only)", type=
 
 if id_number and first_name and last_name and uploaded_resume is not None:
     st.markdown("### Thank you for providing your details and resume!")
-    st.markdown("Please rate the accuracy of the model's predictions for each keyword using the dropdown menus.")
 
     @st.cache_data
     def process_resume(file_content):
@@ -132,24 +101,50 @@ if id_number and first_name and last_name and uploaded_resume is not None:
     results_df = pd.DataFrame(results_data)
     results_df = results_df.sort_values('Similarity Score', ascending=False)
 
-    st.subheader("Keyword Relevance and Rating")
-    st.info("Please rate the accuracy of the model's predictions for each keyword using the dropdown menus:")
-    user_ratings = create_interactive_table(results_df)
-
-if st.button("Confirm and Submit"):
-    comparison_df = results_df[['Keyword', 'Similarity Score']].merge(user_ratings, on='Keyword')
-    st.dataframe(comparison_df[['Keyword', 'Similarity Score', 'Your Rating']])
+    st.subheader("Model's Keyword Relevance Results")
+    st.dataframe(results_df)
 
     st.subheader("Keyword Relevance Radar Chart")
-    fig = create_radar_chart(results_df[['Keyword', 'Similarity Score']])
+    fig = create_radar_chart(results_df)
     st.plotly_chart(fig)
 
-if user_ratings is not None:
-    if True:
+    st.subheader("Rate the Accuracy of Model's Predictions")
+    st.markdown("Please rate the accuracy of the model's predictions for each keyword using the dropdown menus:")
+
+    if 'ratings' not in st.session_state:
+        st.session_state.ratings = {row['Keyword']: 3 for _, row in results_df.iterrows()}
+
+    rating_options = {
+        1: "1 - Not Accurate",
+        2: "2 - Slightly Accurate",
+        3: "3 - Moderately Accurate",
+        4: "4 - Very Accurate",
+        5: "5 - Extremely Accurate"
+    }
+
+    for i, row in results_df.iterrows():
+        col1, col2 = st.columns([3, 2])
+        with col1:
+            st.write(row['Keyword'])
+        with col2:
+            st.selectbox(
+                f"Rate accuracy for {row['Keyword']}",
+                options=list(rating_options.keys()),
+                format_func=lambda x: rating_options[x],
+                key=f"rating_{row['Keyword']}",
+                index=st.session_state.ratings[row['Keyword']] - 1,
+                on_change=lambda: st.session_state.ratings.update({row['Keyword']: st.session_state[f"rating_{row['Keyword']}"]}),
+            )
+
+    if st.button("Confirm and Submit"):
+        user_ratings = pd.DataFrame([(k, v) for k, v in st.session_state.ratings.items()], columns=['Keyword', 'Your Rating'])
+        comparison_df = results_df[['Keyword', 'Similarity Score']].merge(user_ratings, on='Keyword')
+        st.dataframe(comparison_df[['Keyword', 'Similarity Score', 'Your Rating']])
+
         normalized_results = {}
         for keyword in keywords:
             similarity_score = results_df[results_df['Keyword'] == keyword]['Similarity Score'].values[0]
-            user_rating = user_ratings[user_ratings['Keyword'] == keyword]['Your Rating'].values[0]
+            user_rating = st.session_state.ratings[keyword]
 
             normalized_results[keyword] = {
                 'similarity_score': float(similarity_score),
