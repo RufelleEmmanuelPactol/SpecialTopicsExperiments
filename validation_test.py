@@ -1,7 +1,8 @@
 import functools
 import sys
 from io import BytesIO
-
+import nltk
+nltk.download('punkt_tab')
 
 import pandas as pd
 import streamlit as st
