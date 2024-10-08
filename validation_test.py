@@ -69,19 +69,41 @@ keywords = ["Machine Learning", "Application Development", "Backend Development"
 st.header("Resume - Keyword Fit Validation Test")
 st.markdown(
     """
-    For this survey, we are testing the accuracy of our keyword-matching model and algorithm.
-    The purpose of this algorithm is to assess how well certain skills, qualifications, and keywords 
-    align with the content of your resume. This helps us determine if the model accurately identifies 
-    the relevant skills for job applications based on the keywords.
-    """
-)
+    This survey helps us understand the accuracy of our machine learning models and algorithms for skill-matching 
+    through the exclusive use of resumes.
+    """)
 
-st.markdown("### Keywords Analyzed")
-st.write("These are the keywords that the algorithm has identified as relevant:")
+with st.expander("Our Privacy Policy", expanded=False):
+    st.markdown("""
+
+### Data Storage Disclaimer
+
+Your privacy and the security of your data are of utmost importance to us. By participating in this survey, you agree to the following terms regarding the collection and use of your data:
+
+- **Data Storage**: We only store the survey responses you provide. Please note that **your uploaded resume is not stored on our servers**. The resume is processed temporarily for analysis during this survey, but it is not saved or retained in any form after processing.
+
+- **Purpose of Data Collection**: The information collected through this survey will be used exclusively for academic research purposes. We aim to analyze the accuracy and effectiveness of our keyword-matching model as part of our study. Your data will not be used for any commercial purposes or shared with third parties outside of the research team.
+
+- **Confidentiality**: Your personal information, such as your name and ID number, will be kept confidential and will only be used to validate the survey responses. In any reports or publications resulting from this research, data will be presented in an aggregated manner, ensuring that individual responses cannot be identified.
+
+- **Voluntary Participation**: Participation in this survey is voluntary, and you may withdraw at any time. Should you choose to withdraw, any data collected up to that point will be deleted from our records.
+
+
+ """)
+st.markdown("By proceeding with this survey, you acknowledge that you have read and understood this disclaimer, "
+            "and you agree to the storage and use of your data as outlined above.")
+
+
+
+st.markdown("#### Relevant Keywords")
+st.write("We will be testing the following keywords and skills:")
 st.text_area("Keywords", value=", ".join(keywords), height=100, disabled=True)
 
-first_name = st.text_input("First Name")
-last_name = st.text_input("Last Name")
+f1, f2 = st.columns(2)
+with f1:
+    first_name = st.text_input("First Name")
+with f2:
+    last_name = st.text_input("Last Name")
 id_number = st.text_input("ID Number")
 
 if id_number:
