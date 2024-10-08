@@ -3,7 +3,7 @@ import sys
 from io import BytesIO
 import nltk
 nltk.download('punkt_tab')
-
+nltk.download('averaged_perceptron_tagger_eng')
 import pandas as pd
 import streamlit as st
 from blob_store import PersistentKVP
