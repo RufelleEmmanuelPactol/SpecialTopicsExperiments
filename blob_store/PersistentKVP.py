@@ -3,8 +3,7 @@ import redis
 import os
 
 class PersistentKVP:
-    def __init__(self, name):
-        self.name = name
+    def __init__(self):
         redis_url = os.environ.get('REDIS_URL')
         if not redis_url:
             raise ValueError("REDIS_URL environment variable is not set")
@@ -14,45 +13,39 @@ class PersistentKVP:
         return json.dumps(self.get_all(), indent=4)
 
     def __setitem__(self, key, value):
-        full_key = f"{self.name}:{key}"
-        self.redis_client.set(full_key, json.dumps(value))
+        self.redis_client.set(key, json.dumps(value))
 
     def persist(self):
         # Redis automatically persists data, so this method is not needed
         pass
 
     def __getitem__(self, key):
-        full_key = f"{self.name}:{key}"
-        value = self.redis_client.get(full_key)
+        value = self.redis_client.get(key)
         if value is None:
             raise KeyError(key)
         return json.loads(value)
 
     def __contains__(self, key):
-        full_key = f"{self.name}:{key}"
-        return self.redis_client.exists(full_key)
+        return self.redis_client.exists(key)
 
     def __len__(self):
-        return len(self.keys())
+        return self.redis_client.dbsize()
 
     def __iter__(self):
         return iter(self.keys())
 
     def keys(self):
-        pattern = f"{self.name}:*"
-        return [key.decode().split(':', 1)[1] for key in self.redis_client.keys(pattern)]
+        return [key.decode() for key in self.redis_client.keys('*')]
 
     def values(self):
-        return [self[key] for key in self.keys()]
+        return [json.loads(value) for value in self.redis_client.mget(self.keys())]
 
     def items(self):
         return [(key, self[key]) for key in self.keys()]
 
     def get(self, key, default=None):
-        try:
-            return self[key]
-        except KeyError:
-            return default
+        value = self.redis_client.get(key)
+        return json.loads(value) if value is not None else default
 
     def get_all(self):
         return {key: self[key] for key in self.keys()}

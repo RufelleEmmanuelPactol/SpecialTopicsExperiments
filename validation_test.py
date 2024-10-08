@@ -61,7 +61,7 @@ def create_radar_chart(df):
 
 @st.cache_resource
 def get_kvp_store():
-    return PersistentKVP("local-db")
+    return PersistentKVP()
 
 kvp_store = get_kvp_store()
 
