@@ -107,6 +107,7 @@ class SimilarityScorer:
                 'similarity_score': final_score,
                 'best_matching_ngram': best_ngram
             }
+        print(relevance_scores)
 
         return relevance_scores
 
@@ -193,7 +194,7 @@ def format_resume(resume_text):
 
         Ensure the resume is well-structured, includes all relevant information, and follows standard resume 
         formatting practices. Please do not add any of your personal comments in the response. Just give me the 
-        resume. This is imperative. Do not change the resume. Only format it at a readable state."""
+        resume. This is imperative. Do not change the resume. Only format it at a readable state. Do not format in markdown. Format in plain text."""
 
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
