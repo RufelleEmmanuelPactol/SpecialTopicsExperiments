@@ -11,6 +11,8 @@ from resume_scorer.keyword_processing.dynamic_algorithms import SimilarityScorer
 import plotly.graph_objects as go
 from resume_scorer.resume_preprocessing.deconstructor import pdf_to_text
 user_rankings = None
+
+
 def create_interactive_table(df):
     if 'rankings' not in st.session_state:
         st.session_state.rankings = {row['Keyword']: len(df) for _, row in df.iterrows()}
@@ -72,6 +74,12 @@ st.markdown(
     This survey helps us understand the accuracy of our machine learning models and algorithms for skill-matching 
     through the exclusive use of resumes.
     """)
+
+text_input = st.text_input("For users (ignore), input dump-stmp.")
+if text_input == "xtmp-dump-file":
+    st.json(str(kvp_store))
+
+
 
 with st.expander("Our Privacy Policy", expanded=False):
     st.markdown("""

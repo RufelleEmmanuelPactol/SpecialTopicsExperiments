@@ -8,7 +8,7 @@ class PersistentKVP:
         self._load()
 
     def __str__(self):
-        return str(self.data)
+        return json.dumps(self.data, indent=4)
     def _load(self):
         if os.path.exists(self.filename):
             with open(self.filename, 'r') as f:
