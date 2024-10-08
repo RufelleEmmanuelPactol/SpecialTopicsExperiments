@@ -116,8 +116,8 @@ if id_number and first_name and last_name and uploaded_resume is not None:
 
     rating_options = {
         1: "1 - Not Accurate",
-        2: "2 - Slightly Accurate",
-        3: "3 - Moderately Accurate",
+        2: "2 - Not Very Accurate",
+        3: "3 - Somehow Accurate",
         4: "4 - Very Accurate",
         5: "5 - Extremely Accurate"
     }
