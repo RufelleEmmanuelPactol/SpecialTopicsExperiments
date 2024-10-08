@@ -1,8 +1,7 @@
 import functools
 import sys
 from io import BytesIO
-import dotenv
-dotenv.load_dotenv()
+
 
 import pandas as pd
 import streamlit as st
