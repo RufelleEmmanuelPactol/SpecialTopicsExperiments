@@ -124,7 +124,7 @@ uploaded_resume = st.file_uploader("Upload your resume (PDF format only)", type=
 
 if id_number and first_name and last_name and uploaded_resume is not None:
     st.markdown("### Thank you for providing your details and resume!")
-    st.markdown("Please proceed to rank the keywords based on their relevance to your resume.")
+    st.markdown("Please proceed to rank the keywords (1 Means Most Relevant, 7 Means Least Relevant) based on their relevance to your resume.")
 
     @st.cache_data
     def process_resume(file_content):
