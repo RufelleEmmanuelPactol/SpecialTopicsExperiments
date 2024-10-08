@@ -22,7 +22,7 @@ def create_interactive_table(df):
         with col1:
             st.write(row['Keyword'])
         with col4:
-            st.number_input(f"Rank for {row['Keyword']}",
+            st.number_input(f"Rank (7-Not Relevant, 1-Most Relevant) for {row['Keyword']}",
                             min_value=1,
                             max_value=len(df),
                             value=st.session_state.rankings[row['Keyword']],
