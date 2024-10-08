@@ -156,7 +156,7 @@ class SimilarityScorer:
             def sigmoid(x):
                 return 1 / (1 + math.exp(-x))
 
-            return np.tanh(sum(self.scores) / math.sqrt(len(self.scores)) / 2)
+            return np.tanh(sum(self.scores) / math.sqrt(len(self.scores)) )
 
         def get_keyword(self):
             return self.keyword
