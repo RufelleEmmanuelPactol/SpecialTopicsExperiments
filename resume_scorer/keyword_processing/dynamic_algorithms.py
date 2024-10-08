@@ -81,11 +81,12 @@ class SimilarityScorer:
 
         for keyword in keywords:
             preprocessed_keyword = self.preprocess_text(keyword)
-            max_score = 0
-            best_ngram = ''
+
             all_scores = []
 
             for n in [2, 3, 4, 5]:
+                max_score = 0
+                best_ngram = ''
                 text_ngrams = self.generate_ngrams(preprocessed_text, n)
 
                 for ngram in text_ngrams:
