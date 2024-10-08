@@ -87,7 +87,10 @@ if id_number and first_name and last_name and uploaded_resume is not None:
     @st.cache_data
     def process_resume(file_content):
         resume_text = pdf_to_text(file_content)
-        return format_resume(resume_text)
+        defaulted = format_resume(resume_text)
+        with st.expander("Resume Parsed", expanded=False):
+            st.markdown(defaulted)
+        return defaulted
 
     @st.cache_data
     def calculate_scores(_resume_text, _keywords):
