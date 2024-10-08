@@ -60,12 +60,7 @@ diff-match-patch==20200713
 dill==0.3.7
 distributed==2023.11.0
 distro==1.8.0
-docstring-to-markdown==0.11
-docutils==0.18.1
-en-core-web-sm==3.7.1
-entrypoints==0.4
-et-xmlfile==1.1.0
-executing==0.8.3
+
 fastjsonschema==2.16.2
 filelock==3.13.1
 flake8==6.0.0
