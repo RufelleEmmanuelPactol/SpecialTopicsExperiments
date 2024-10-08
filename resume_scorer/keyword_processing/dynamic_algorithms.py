@@ -4,6 +4,8 @@ import re
 import nltk
 import numpy as np
 from functools import lru_cache
+
+import streamlit.logger
 from nltk import WordNetLemmatizer
 from nltk.corpus import stopwords, wordnet
 from nltk.tokenize import word_tokenize, sent_tokenize
@@ -107,7 +109,8 @@ class SimilarityScorer:
                 'similarity_score': final_score,
                 'best_matching_ngram': best_ngram
             }
-        print(relevance_scores)
+
+        streamlit.logger.get_logger(__name__).info(relevance_scores)
 
         return relevance_scores
 
