@@ -108,6 +108,19 @@ if id_number and first_name and last_name and uploaded_resume is not None:
     st.subheader("Model's Keyword Relevance Results")
     st.dataframe(results_df)
 
+    st.markdown("""
+    #### Guidelines to Interpreting The Data
+
+| **Rating** | **Interpretation** |
+|------------|--------------------|
+| > 0.85     | The skills and qualifications are very prominent throughout the resume. This rating indicates that almost all of the mentioned skills and experiences closely match the specified keywords, showing a strong alignment with the required expertise. The candidate has demonstrated in-depth experience and mastery in these areas. |
+| > 0.60     | The candidate is knowledgeable in the relevant skills and has demonstrated a good level of understanding and experience in the field. While not every aspect of the skills may be covered, there is clear evidence of familiarity and competence in these areas. |
+| > 0.55     | The skills mentioned in the resume are somehow relevant to the specified keywords. There is a basic understanding or experience, but it may not be comprehensive. The candidate shows potential but might need further training or experience to achieve mastery. |
+| > 0.50     | The candidate has skills that are related to the keywords, but the connection is more peripheral. The relevant skills may be mentioned in passing, or the experience may not directly align with the requirements. There is some foundational knowledge, but it might not be sufficient for in-depth work in these areas. |
+| < 0.50     | The candidate is not proficient in the skills related to the specified keywords. The resume lacks significant mention or demonstration of these skills, indicating that the candidate might need substantial training or experience to reach the desired level of expertise. |
+
+    """)
+
     st.subheader("Keyword Relevance Radar Chart")
     fig = create_radar_chart(results_df)
     st.plotly_chart(fig)
