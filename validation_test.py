@@ -116,7 +116,7 @@ id_number = st.text_input("ID Number")
 
 if id_number:
     if id_number in kvp_store:
-        st.warning("This ID number is not valid. Please check your ID and try again.")
+        st.warning("This ID number has an associated submission. Please email rufelleemmanuel.pactol@cit.edu for removal.")
     else:
         st.success("ID number is valid.")
 
