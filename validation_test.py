@@ -154,9 +154,9 @@ if id_number and first_name and last_name and uploaded_resume is not None:
             )
 
     if st.button("Confirm and Submit"):
-        user_ratings = pd.DataFrame([(k, v) for k, v in st.session_state.ratings.items()], columns=['Keyword', 'Your Rating'])
-        comparison_df = results_df[['Keyword', 'Similarity Score']].merge(user_ratings, on='Keyword')
-        st.dataframe(comparison_df[['Keyword', 'Similarity Score', 'Your Rating']])
+        #user_ratings = pd.DataFrame([(k, v) for k, v in st.session_state.ratings.items()], columns=['Keyword', 'Your Rating'])
+        #comparison_df = results_df[['Keyword', 'Similarity Score']].merge(user_ratings, on='Keyword')
+        #st.dataframe(comparison_df[['Keyword', 'Similarity Score', 'Your Rating']])
 
         normalized_results = {}
         for keyword in keywords:
