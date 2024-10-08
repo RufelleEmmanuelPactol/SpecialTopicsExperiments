@@ -132,16 +132,20 @@ class SimilarityScorer:
             self.scores = []
             self.sentences = []
 
+        def transform_score(self, x):
+            return np.sign(x) * abs(x ** 2)
+
         def transform_calculate_sentence(self, sentence):
             self.sentences.append(sentence)
             score = self.parent.cosine_sim(sentence, self.keyword)
+            score = self.transform_score(score)
             self.scores.append(score)
 
         def aggregate_similarity(self):
             def sigmoid(x):
                 return 1 / (1 + math.exp(-x))
 
-            return sigmoid(sum(self.scores) / math.sqrt(len(self.scores)) )
+            return np.tanh(sum(self.scores) / math.sqrt(len(self.scores)) / 2)
 
         def get_keyword(self):
             return self.keyword
