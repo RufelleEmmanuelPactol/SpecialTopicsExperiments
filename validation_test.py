@@ -46,7 +46,7 @@ st.markdown(
     through the exclusive use of resumes.
     """)
 
-with st.expander("Our Privacy Policy", expanded=False):
+with st.expander("Our Privacy Policy", expanded=True):
     st.markdown("""
     ### Data Storage Disclaimer
 
@@ -60,8 +60,11 @@ with st.expander("Our Privacy Policy", expanded=False):
 
     - **Voluntary Participation**: Participation in this survey is voluntary, and you may withdraw at any time. Should you choose to withdraw, any data collected up to that point will be deleted from our records.
     """)
-st.markdown("By proceeding with this survey, you acknowledge that you have read and understood this disclaimer, "
+    result = st.checkbox("By clicking agree, you acknowledge that you have read and understood this disclaimer, "
             "and you agree to the storage and use of your data as outlined above.")
+if not result:
+    exit(0)
+
 
 st.markdown("#### Relevant Keywords")
 st.write("We will be testing the following keywords and skills:")

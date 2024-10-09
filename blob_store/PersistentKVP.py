@@ -2,8 +2,11 @@ import json
 import redis
 import os
 
+
 class PersistentKVP:
     def __init__(self):
+        import dotenv
+        dotenv.load_dotenv()
         redis_url = os.environ.get('REDIS_URL')
         if not redis_url:
             raise ValueError("REDIS_URL environment variable is not set")
