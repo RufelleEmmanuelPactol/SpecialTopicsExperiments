@@ -156,6 +156,45 @@ if id_number and first_name and last_name and uploaded_resume is not None:
                 on_change=lambda: st.session_state.ratings.update({row['Keyword']: st.session_state[f"rating_{row['Keyword']}"]}),
             )
 
+    st.header("Usability Testing Survey")
+    st.subheader("Background Information")
+    background_info = st.text_area("1. Can you tell me about your experience with online surveys, particularly those related to job applications or resume evaluations?")
+    experience_similar = st.text_area("2. Have you used any similar keyword-matching tools or services before?")
+
+    st.subheader("Expectations")
+    expectations = st.text_area("3. What do you expect to achieve by participating in this survey?")
+    specific_features = st.text_area("4. Are there specific features or aspects of the survey that you are particularly interested in?")
+
+    st.subheader("Survey Navigation")
+    navigation_ease = st.text_area("5. How easy was it to find and access the survey?")
+    navigation_issues = st.text_area("6. Did you encounter any issues while navigating through the survey? If so, please describe them.")
+
+    st.subheader("Understanding Instructions")
+    instructions_clear = st.text_area("7. Were the instructions for uploading your resume clear and easy to follow?")
+    purpose_understood = st.text_area("8. Did you understand the purpose of the survey and how your data would be used?")
+
+    st.subheader("Resume Upload Process")
+    upload_ease = st.text_area("9. How easy was it to upload your resume? Did you encounter any difficulties?")
+    file_format_clear = st.text_area("10. Was the file format requirement (PDF only) clear to you?")
+
+    st.subheader("Feedback on Keyword Relevance Results")
+    results_clarity = st.text_area("11. How clear were the results provided by the model regarding keyword relevance?")
+    rating_system_understood = st.text_area("12. Did you find the rating system (e.g., >0.85, >0.60) easy to understand? Why or why not?")
+
+    st.subheader("Satisfaction Rating")
+    satisfaction = st.slider("13. On a scale of 1 to 5, how satisfied are you with the overall survey experience?", 1, 5)
+    satisfaction_feedback = st.text_area("14. What aspects of the survey did you find most helpful or frustrating?")
+
+    st.header("General Usability Questions")
+    overall_experience = st.text_area("15. How would you describe your overall experience with this survey?")
+    likes = st.text_area("16. What did you like most about the survey? What did you like least?")
+
+    st.header("Closing Questions")
+    final_thoughts = st.text_area("19. Is there anything else you would like to add about your experience with the survey?")
+    suggestions = st.text_area("20. Do you have any suggestions for improving the survey or the keyword-matching model?")
+    future_participation = st.text_area("21. Would you be willing to participate in future surveys or usability tests related to this topic?")
+    recommendation = st.text_area("22. Would you recommend this survey to others? Why or why not?")
+
     if st.button("Confirm and Submit"):
         #user_ratings = pd.DataFrame([(k, v) for k, v in st.session_state.ratings.items()], columns=['Keyword', 'Your Rating'])
         #comparison_df = results_df[['Keyword', 'Similarity Score']].merge(user_ratings, on='Keyword')
@@ -171,11 +210,35 @@ if id_number and first_name and last_name and uploaded_resume is not None:
                 'user_rating': int(user_rating)
             }
 
+        survey_data = {
+            "background_info": background_info,
+            "experience_similar": experience_similar,
+            "expectations": expectations,
+            "specific_features": specific_features,
+            "navigation_ease": navigation_ease,
+            "navigation_issues": navigation_issues,
+            "instructions_clear": instructions_clear,
+            "purpose_understood": purpose_understood,
+            "upload_ease": upload_ease,
+            "file_format_clear": file_format_clear,
+            "results_clarity": results_clarity,
+            "rating_system_understood": rating_system_understood,
+            "satisfaction": satisfaction,
+            "satisfaction_feedback": satisfaction_feedback,
+            "overall_experience": overall_experience,
+            "likes": likes,
+            "final_thoughts": final_thoughts,
+            "suggestions": suggestions,
+            "future_participation": future_participation,
+            "recommendation": recommendation
+        }
+
         results = {
             'first_name': first_name,
             'last_name': last_name,
             'id_number': id_number,
-            'keywords': normalized_results
+            'keywords': normalized_results,
+            'survey_data': survey_data
         }
         kvp_store[id_number] = results
 
