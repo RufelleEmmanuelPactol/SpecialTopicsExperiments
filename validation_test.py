@@ -157,14 +157,12 @@ if id_number and first_name and last_name and uploaded_resume is not None:
             )
 
     st.write("""
-    This survey helps us improve the accuracy of our machine learning models for skill-matching based on resumes. 
-    Please rate your experience using the system.
+    Thank you for participating! This survey helps us 
+    improve our system. Please rate your experience using the system.
     """)
 
-    # Create a form for the SUS
     st.subheader("System Usability Scale (SUS)")
 
-    # Define a list of questions for the SUS
     questions = [
         "I think that I would like to use this system frequently.",
         "I found the system unnecessarily complex.",
@@ -178,15 +176,12 @@ if id_number and first_name and last_name and uploaded_resume is not None:
         "I needed to learn a lot of things before I could get going with this system."
     ]
 
-    # Possible options for the scale
     options = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
 
-    # Initialize an empty list to store user responses
     responses = {}
 
-    # Loop through each question and render a dropdown for it
     for i, question in enumerate(questions):
-        response = st.selectbox("{}. {}".format(i+1, question), options)
+        response = st.selectbox(f"{i+1}. {question}", options)
         responses[question] = response
 
     if st.button("Confirm and Submit"):
