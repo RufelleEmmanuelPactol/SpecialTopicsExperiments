@@ -36,8 +36,8 @@ def get_kvp_store():
 kvp_store = get_kvp_store()
 
 keywords = ["Machine Learning", "Android Development", "Frontend Development", "Backend Development",
-                "Data Analytics", "Development Operations", "Cyber Security", "Data Scraping", "Cloud Engineering",
-                "Quantitative Analysis", "Data Engineering"]
+                "Data Analytics", "Development Operations", "Cyber Security", "Data Scraping",
+                "Quantitative Analysis",]
 
 st.header("Resume - Keyword Fit Validation Test")
 st.markdown(
