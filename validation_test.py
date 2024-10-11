@@ -113,6 +113,7 @@ if id_number and first_name and last_name and uploaded_resume is not None:
 
     st.markdown("""
     #### Guidelines to Interpreting The Data
+    **Note! The data is basing only off your resume, and not your actual skills.**
 
 | **Rating** | **Interpretation** |
 |------------|--------------------|
