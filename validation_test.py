@@ -88,6 +88,7 @@ uploaded_resume = st.file_uploader("Upload your resume (PDF format only)", type=
 if id_number and first_name and last_name and uploaded_resume is not None:
     st.markdown("### Thank you for providing your details and resume!")
 
+    @st.cache_data
     def process_resume(file_content):
         resume_text = pdf_to_text(file_content)
         defaulted = format_resume(resume_text)
@@ -95,6 +96,8 @@ if id_number and first_name and last_name and uploaded_resume is not None:
             st.markdown(defaulted)
         return defaulted
 
+
+    @st.cache_data
     def calculate_scores(_resume_text, _keywords):
         scorer = SimilarityScorer(engine='ngram-product', transformer='roberta-base-nli-stsb-mean-tokens')
         return scorer.calculate_relevance_scores(_resume_text, _keywords)
