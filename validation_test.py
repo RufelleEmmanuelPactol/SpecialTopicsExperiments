@@ -156,6 +156,34 @@ if id_number and first_name and last_name and uploaded_resume is not None:
                 on_change=lambda: st.session_state.ratings.update({row['Keyword']: st.session_state[f"rating_{row['Keyword']}"]}),
             )
 
+    st.write("""
+    Thank you for participating! This survey helps us 
+    improve our system. Please rate your experience using the system.
+    """)
+
+    st.subheader("System Usability Scale (SUS)")
+
+    questions = [
+        "I think that I would like to use this system frequently.",
+        "I found the system unnecessarily complex.",
+        "I thought the system was easy to use.",
+        "I think that I would need support from a technical person to use this system.",
+        "I found the various functions in this system were well integrated.",
+        "I thought there was too much inconsistency in this system.",
+        "I would imagine that most people would learn to use this system very quickly.",
+        "I found the system very cumbersome to use.",
+        "I felt very confident using the system.",
+        "I needed to learn a lot of things before I could get going with this system."
+    ]
+
+    options = ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"]
+
+    responses = {}
+
+    for i, question in enumerate(questions):
+        response = st.selectbox(f"{i+1}. {question}", options)
+        responses[question] = response
+
     if st.button("Confirm and Submit"):
         #user_ratings = pd.DataFrame([(k, v) for k, v in st.session_state.ratings.items()], columns=['Keyword', 'Your Rating'])
         #comparison_df = results_df[['Keyword', 'Similarity Score']].merge(user_ratings, on='Keyword')
@@ -175,7 +203,8 @@ if id_number and first_name and last_name and uploaded_resume is not None:
             'first_name': first_name,
             'last_name': last_name,
             'id_number': id_number,
-            'keywords': normalized_results
+            'keywords': normalized_results,
+            'survey_data': responses
         }
         kvp_store[id_number] = results
 
