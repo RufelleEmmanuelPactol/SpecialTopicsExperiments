@@ -99,8 +99,10 @@ if id_number and first_name and last_name and uploaded_resume is not None:
         scorer = SimilarityScorer(engine='ngram-product', transformer='roberta-base-nli-stsb-mean-tokens')
         return scorer.calculate_relevance_scores(_resume_text, _keywords)
 
-    resume_text = process_resume(BytesIO(uploaded_resume.read()))
-    relevance_scores = calculate_scores(resume_text, tuple(keywords))
+    with st.spinner("Parsing your resume. Read StackOverflow, maybe? ⚙️"):
+        resume_text = process_resume(BytesIO(uploaded_resume.read()))
+    with st.spinner("Generating your relevance scores. Grab a cup of coffee first. ☕️"):
+        relevance_scores = calculate_scores(resume_text, tuple(keywords))
 
     results_data = [{'Keyword': k, 'Similarity Score': v['similarity_score']} for k, v in relevance_scores.items()]
     results_df = pd.DataFrame(results_data)
