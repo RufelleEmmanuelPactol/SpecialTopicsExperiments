@@ -3,11 +3,11 @@ import pandas as pd
 import plotly.graph_objects as go
 
 
-from resume_scorer.free_form_text.kernels import CrossProductSimilarity, NgramCrossProductSimilarity
+from resume_scorer.free_form_text.kernels import NgramCrossProductSimilarity
 from resume_scorer.resume_preprocessing.deconstructor import pdf_to_text
 from io import BytesIO
 
-from resume_scorer.keyword_processing.dynamic_algorithms import SimilarityScorer, format_resume
+from resume_scorer.keyword_processing.dynamic_algorithms import SimilarityScorer, format_resume, CrossProductSimilarity
 import os
 import dotenv
 import numpy as np
@@ -131,7 +131,7 @@ def cross_product_similarity_app():
     text1 = st.text_area("Enter first text:", height=200)
     text2 = st.text_area("Enter second text:", height=200)
 
-    scorer = CrossProductSimilarity()
+    scorer = CrossProductSimilarity(transformer='roberta-base-nli-stsb-mean-tokens')
     if len(text1) == 0 and len(text2) == 0:
         return
     if st.button("Calculate Similarity"):
@@ -140,12 +140,12 @@ def cross_product_similarity_app():
             with c1:
                 st.markdown("### Cross Product Similarity Kernel")
                 with st.spinner("Calculating similarity..."):
-                    similarity_score = scorer.evaluate_similarity(text1, text2)
+                    similarity_score = scorer.calculate_similarity(text1, text2)
 
                 st.subheader("Similarity Score")
                 st.write(f"The similarity score between the two texts is: {similarity_score:.4f}")
 
-                st.progress(similarity_score)
+                st.write(similarity_score)
 
                 if similarity_score > 0.8:
                     st.success("The texts are very similar!")

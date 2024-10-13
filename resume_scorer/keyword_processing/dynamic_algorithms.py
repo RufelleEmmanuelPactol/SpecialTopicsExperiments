@@ -152,10 +152,43 @@ class SimilarityScorer:
                     i = x
             return sentences[i]
 
+        def augmented_cosine_loss(self, x, y, k):
+            import torch
+
+
+
+            cosine_sim =cosine_similarity(x.reshape(1, -1), y.reshape(1, -1))
+
+            # Compute regular cosine distance
+            cosine_dist = 1 - cosine_sim
+
+            # Create a mask for pairs with different signs
+            sign_mask = (np.sign(x) != np.sign(y))
+            # Double the distance for pairs with different signs
+            modified_dist = np.where(sign_mask, 4 * cosine_dist, cosine_dist)
+
+            # Compute the loss as 1 - modified distance
+            loss = 1 - modified_dist
+
+            # Compute the mean loss
+            mean_loss = loss.mean()
+
+            return mean_loss
+
+
+
+        def augmented_cosine_similarity(self, corpus_x, corpus_y, k):
+            x_embed = self.parent.get_embedding(corpus_x)[0]
+            y_embed = self.parent.get_embedding(corpus_y)[0]
+            return self.relu(1 - self.augmented_cosine_loss(x_embed, y_embed, k))
+
+        def relu(self, value):
+            return max(0, value)
+
 
         def transform_calculate_sentence(self, sentence):
             self.sentences.append(sentence)
-            score = self.parent.cosine_sim(sentence, self.keyword)
+            score = self.augmented_cosine_similarity(sentence, self.keyword, 2)
             #score = self.transform_score(score)
             self.scores.append(score)
 
@@ -227,3 +260,75 @@ def format_resume(resume_text):
         return resume_text
 
 
+class CrossProductSimilarity:
+    def __init__(self, transformer='paraphrase-MiniLM-L6-v2', verbose=True):
+        self.verbose = verbose
+        self.model = SentenceTransformer(transformer)
+
+    def _write_log(self, log):
+        if self.verbose:
+            print(log)
+
+    @lru_cache(maxsize=1280)
+    def get_embedding(self, text):
+        return self.model.encode([text])
+
+    def augmented_cosine_loss(self, x, y, k):
+        cosine_sim = cosine_similarity(x.reshape(1, -1), y.reshape(1, -1))
+        cosine_dist = 1 - cosine_sim
+        sign_mask = (np.sign(x) != np.sign(y))
+        modified_dist = np.where(sign_mask, k * cosine_dist, cosine_dist)
+        loss = 1 - modified_dist
+        return loss.mean()
+
+    def augmented_cosine_similarity(self, corpus_x, corpus_y, k):
+        x_embed = self.get_embedding(corpus_x)[0]
+        y_embed = self.get_embedding(corpus_y)[0]
+        return max(0, 1 - self.augmented_cosine_loss(x_embed, y_embed, k))
+
+    def calculate_similarity(self, text1, text2):
+        sentences1 = preprocess_text(text1)
+        sentences2 = preprocess_text(text2)
+        chunks1 = chunk_text(sentences1, max_chunk_size=24, overlap=8)
+        chunks2 = chunk_text(sentences2, max_chunk_size=24, overlap=8)
+
+        self._write_log(f"Number of chunks in text1: {len(chunks1)}")
+        self._write_log(f"Number of chunks in text2: {len(chunks2)}")
+
+        similarity_scores = []
+
+        for chunk1 in chunks1:
+            for chunk2 in chunks2:
+                score = self.augmented_cosine_similarity(chunk1, chunk2, 3)
+                similarity_scores.append(score)
+
+        def sigmoid(x):
+            return 1 / (1 + math.exp(-x))
+
+        final_similarity = max(similarity_scores)
+
+        self._write_log(f"Final similarity score: {final_similarity}")
+        return self.augmented_loss_normalization(1- final_similarity)
+
+
+    def augmented_loss_normalization(self, score):
+        # Define the breakpoints
+        lower_bound = -1
+        middle_point = 0.20
+        upper_bound = 0.25
+
+        # Define the target ranges
+        target_min = 0
+        target_max = 1
+        target_high = 0.80
+
+        # Clip the score to ensure it's within the expected range
+        score = np.clip(score, lower_bound, upper_bound)
+
+        if score >= middle_point:
+            # For scores between 0 and 0.25, map to 0.85 - 1
+            return target_high + (target_max - target_high) * (score - middle_point) / (
+                        upper_bound - middle_point)
+        else:
+            # For scores between -1 and 0, map to 0 - 0.85, with a steeper curve
+            return target_min + target_high * ((score - lower_bound) / (middle_point - lower_bound)) ** 2
