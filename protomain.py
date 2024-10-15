@@ -138,14 +138,14 @@ def cross_product_similarity_app():
         if text1 and text2:
             #c1 = st.columns(1)
 
-            st.markdown("### Cross Product Similarity Kernel")
-            with st.spinner("Calculating similarity..."):
+            st.markdown("### Cross Product Score Generation Kernel")
+            with st.spinner("Calculating correctness..."):
                 similarity_score = scorer.calculate_similarity(text1, text2)
 
-            st.subheader("Similarity Score")
-            st.write(f"The similarity score between the two texts is: {similarity_score:.4f}")
+            st.subheader("Correctness Score")
+            st.write(f"The correctness score between the two texts is: {similarity_score:.4f}")
 
-            st.progress(similarity_score)
+            st.write(similarity_score)
 
             if similarity_score > 0.8:
                 st.success("The texts are very similar!")
