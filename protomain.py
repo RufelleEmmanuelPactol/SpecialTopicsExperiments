@@ -145,7 +145,7 @@ def cross_product_similarity_app():
             st.subheader("Correctness Score")
             st.write(f"The correctness score is: {similarity_score:.4f}")
 
-            st.header(f"{similarity_score*100:.2f}%/100")
+            st.header(f"{similarity_score*100:.2f}/100")
 
             if similarity_score > 0.8:
                 st.success("The QUERY text is accurate")
