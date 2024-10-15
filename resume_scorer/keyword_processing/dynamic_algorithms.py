@@ -317,7 +317,7 @@ class CrossProductSimilarity:
 
     def augmented_loss_normalization(self, score):
         # Define the breakpoints
-        lower_bound = -0.7 - (self.len_diff / (9 + (self.len_diff ** 2) ))
+        lower_bound = -0.3 - (self.len_diff / (9 + (self.len_diff ** 2  ) ))
 
         middle_point = 0.1 - (self.len_diff / (9 + (self.len_diff ** 2) ))
         upper_bound = 0.25

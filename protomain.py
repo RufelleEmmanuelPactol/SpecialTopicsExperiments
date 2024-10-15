@@ -1,3 +1,4 @@
+import openai
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
@@ -170,12 +171,78 @@ def cross_product_similarity_app():
 def main():
     st.sidebar.title("App Selection")
     app_mode = st.sidebar.selectbox("Choose the app mode",
-                                    ["Resume Keyword Scorer", "Cross Product Similarity"])
+                                    ["Resume Keyword Scorer", "Cross Product Similarity", "Anchor Pooling"])
 
     if app_mode == "Resume Keyword Scorer":
         resume_keyword_scorer_app()
     elif app_mode == "Cross Product Similarity":
         cross_product_similarity_app()
+    elif app_mode == "Anchor Pooling":
+        anchor_pooling_app()
+
+
+@st.cache_data
+def generate_anchor_pool(question: str, num_answers: int = 20):
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+
+    response = openai.chat.completions.create(
+        model="gpt-4-turbo",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant providing diverse answers to questions."},
+            {"role": "user",
+             "content": f"Please provide {num_answers} unique and diverse answers to the following question. Separate each answer with '|||': {question}"}
+        ],
+        temperature=0.8,  # Increase variability in responses
+        max_tokens=4000  # Adjust as needed
+    )
+
+    # Split the response into individual answers
+    anchor_pool = response.choices[0].message.content.split('|||')
+
+    # Clean up any leading/trailing whitespace
+    anchor_pool = [answer.strip() for answer in anchor_pool]
+
+    return anchor_pool
+
+
+def anchor_pooling_app():
+    st.title("Anchor Pooling Similarity Scorer")
+
+    question = st.text_area("Enter question:", height=100)
+    answer = st.text_area("Enter your answer:", height=200)
+
+    scorer = CrossProductSimilarity(transformer='roberta-base-nli-stsb-mean-tokens')
+
+    if st.button("Calculate Similarity"):
+        if question and answer:
+            with st.spinner("Generating anchor pool and calculating similarities..."):
+                anchor_pool = generate_anchor_pool(question)
+
+                similarities = []
+                for idx, anchor in enumerate(anchor_pool, 1):
+                    similarity = scorer.calculate_similarity(anchor, answer)
+                    similarities.append({"Anchor": idx, "Similarity": similarity})
+
+                df = pd.DataFrame(similarities)
+                max_similarity = df['Similarity'].median()
+
+                st.subheader("Similarity Scores")
+                st.dataframe(df)
+
+                st.subheader("Maximum Similarity Score")
+                st.write(f"The maximum similarity score is: {max_similarity:.4f}")
+
+                st.header(f"{max_similarity * 100:.2f}/100")
+
+                if max_similarity > 0.8:
+                    st.success("Your answer is highly similar to the best anchor.")
+                elif max_similarity > 0.5:
+                    st.info("Your answer has moderate similarity to the best anchor.")
+                else:
+                    st.warning("Your answer has low similarity to the best anchor.")
+
+        else:
+            st.error("Please enter both the question and your answer to calculate similarity.")
 
 
 if __name__ == "__main__":
