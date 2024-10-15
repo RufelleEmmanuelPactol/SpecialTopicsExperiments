@@ -182,7 +182,7 @@ def main():
 
 
 @st.cache_data
-def generate_anchor_pool(question: str, num_answers: int = 20):
+def generate_anchor_pool(question: str, num_answers: int = 7):
     openai.api_key = os.getenv("OPENAI_API_KEY")
 
     response = openai.chat.completions.create(
@@ -190,7 +190,7 @@ def generate_anchor_pool(question: str, num_answers: int = 20):
         messages=[
             {"role": "system", "content": "You are a helpful assistant providing diverse answers to questions."},
             {"role": "user",
-             "content": f"Please provide {num_answers} unique and diverse answers to the following question. Separate each answer with '|||': {question}"}
+             "content": f"Please provide {num_answers} unique and diverse answers to the following question. The answers are in paragraph. Separate each answer with '|||': {question}"}
         ],
         temperature=0.8,  # Increase variability in responses
         max_tokens=4000  # Adjust as needed
