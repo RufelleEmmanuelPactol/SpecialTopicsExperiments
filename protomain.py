@@ -136,24 +136,24 @@ def cross_product_similarity_app():
         return
     if st.button("Calculate Similarity"):
         if text1 and text2:
-            c1, c2 = st.columns(2)
-            with c1:
-                st.markdown("### Cross Product Similarity Kernel")
-                with st.spinner("Calculating similarity..."):
-                    similarity_score = scorer.calculate_similarity(text1, text2)
+            #c1 = st.columns(1)
 
-                st.subheader("Similarity Score")
-                st.write(f"The similarity score between the two texts is: {similarity_score:.4f}")
+            st.markdown("### Cross Product Similarity Kernel")
+            with st.spinner("Calculating similarity..."):
+                similarity_score = scorer.calculate_similarity(text1, text2)
 
-                st.write(similarity_score)
+            st.subheader("Similarity Score")
+            st.write(f"The similarity score between the two texts is: {similarity_score:.4f}")
 
-                if similarity_score > 0.8:
-                    st.success("The texts are very similar!")
-                elif similarity_score > 0.5:
-                    st.info("The texts have moderate similarity.")
-                else:
-                    st.warning("The texts are quite different.")
+            st.progress(similarity_score)
 
+            if similarity_score > 0.8:
+                st.success("The texts are very similar!")
+            elif similarity_score > 0.5:
+                st.info("The texts have moderate similarity.")
+            else:
+                st.warning("The texts are quite different.")
+                z = """
             with c2:
                 st.markdown("### Ngram Cross-Product Kernel")
 
@@ -161,8 +161,7 @@ def cross_product_similarity_app():
                 similarity = ngram_product.evaluate_similarity(text1, text2)
                 st.write("The similarity between these two texts are the following: ", similarity)
                 st.progress(similarity)
-
-
+                """
 
         else:
             st.error("Please enter both texts to calculate similarity.")
