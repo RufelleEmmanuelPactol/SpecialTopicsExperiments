@@ -291,6 +291,9 @@ class CrossProductSimilarity:
         sentences2 = preprocess_text(text2)
         chunks1 = chunk_text(sentences1, max_chunk_size=24, overlap=8)
         chunks2 = chunk_text(sentences2, max_chunk_size=24, overlap=8)
+        print('len', len(chunks1), chunks1)
+        print('len', len(chunks2), chunks2)
+        self.len_diff = abs(len(chunks1) - len(chunks2))
 
         self._write_log(f"Number of chunks in text1: {len(chunks1)}")
         self._write_log(f"Number of chunks in text2: {len(chunks2)}")
@@ -306,15 +309,17 @@ class CrossProductSimilarity:
             return 1 / (1 + math.exp(-x))
 
         final_similarity = max(similarity_scores)
+        final_similarity = 1 - final_similarity
 
         self._write_log(f"Final similarity score: {final_similarity}")
-        return self.augmented_loss_normalization(1- final_similarity)
+        return self.augmented_loss_normalization(final_similarity)
 
 
     def augmented_loss_normalization(self, score):
         # Define the breakpoints
-        lower_bound = -0.3
-        middle_point = 0.20
+        lower_bound = -0.7 - (self.len_diff / (9 + (self.len_diff ** 2) ))
+
+        middle_point = 0.1 - (self.len_diff / (9 + (self.len_diff ** 2) ))
         upper_bound = 0.25
 
         # Define the target ranges
