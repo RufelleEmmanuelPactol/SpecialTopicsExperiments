@@ -128,8 +128,8 @@ def resume_keyword_scorer_app():
 def cross_product_similarity_app():
     st.title("Cross Product Similarity Scorer")
 
-    text1 = st.text_area("Enter first text:", height=200)
-    text2 = st.text_area("Enter second text:", height=200)
+    text1 = st.text_area("Enter ANCHOR text:", height=200)
+    text2 = st.text_area("Enter QUERY text:", height=200)
 
     scorer = CrossProductSimilarity(transformer='roberta-base-nli-stsb-mean-tokens')
     if len(text1) == 0 and len(text2) == 0:
@@ -143,16 +143,16 @@ def cross_product_similarity_app():
                 similarity_score = scorer.calculate_similarity(text1, text2)
 
             st.subheader("Correctness Score")
-            st.write(f"The correctness score between the two texts is: {similarity_score:.4f}")
+            st.write(f"The correctness score is: {similarity_score:.4f}")
 
-            st.write(similarity_score)
+            st.header(f"{similarity_score*100:.2f}%/100")
 
             if similarity_score > 0.8:
-                st.success("The texts are very similar!")
+                st.success("The QUERY text is accurate")
             elif similarity_score > 0.5:
-                st.info("The texts have moderate similarity.")
+                st.info("The QUERY text is somewhat accurate.")
             else:
-                st.warning("The texts are quite different.")
+                st.warning("The QUERY text is quite incorrect.")
                 z = """
             with c2:
                 st.markdown("### Ngram Cross-Product Kernel")
