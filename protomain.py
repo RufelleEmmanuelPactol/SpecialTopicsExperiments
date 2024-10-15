@@ -190,7 +190,7 @@ def generate_anchor_pool(question: str, num_answers: int = 7):
         messages=[
             {"role": "system", "content": "You are a helpful assistant providing diverse answers to questions."},
             {"role": "user",
-             "content": f"Please provide {num_answers} unique and diverse answers to the following question. The answers are in paragraph. Separate each answer with '|||': {question}"}
+             "content": f"Please provide {num_answers} unique and diverse answers to the following question. The answers are one paragraph in length, and not just one sentence. Separate each answer with '|||': {question}"}
         ],
         temperature=0.8,  # Increase variability in responses
         max_tokens=4000  # Adjust as needed
@@ -224,7 +224,14 @@ def anchor_pooling_app():
                     similarities.append({"Anchor": idx, "Similarity": similarity})
 
                 df = pd.DataFrame(similarities)
-                max_similarity = df['Similarity'].median()
+                mode_value = df['Similarity'].mode()[0]
+                mode_count = (df['Similarity'] == mode_value).sum()
+
+                # Set max_similarity based on the mode count
+                if mode_count >= 3:
+                    max_similarity = mode_value
+                else:
+                    max_similarity = df['Similarity'].median()
 
                 st.subheader("Similarity Scores")
                 st.dataframe(df)
