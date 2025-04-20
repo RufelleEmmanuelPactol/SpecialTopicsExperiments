@@ -1,0 +1,200 @@
+,Computer Science,Product and Data Science,Behavioral,Vague/Invalid,Experience
+0,0,1,0,0,Create a product for job seekers.
+1,0,1,0,0,"Imagine you’re the PM for Zenefits and it doesn’t exist yet, how would you go about this?"
+2,1,0,0,0,Data structure related questions such as stacks.
+3,0,0,1,0,why i feel i am a good fit
+4,0,0,1,0,The expectation of my role.
+5,1,0,0,0,Simple producer-consumer multi threading problem.
+6,0,0,0,1,Tree based questions.
+7,1,0,0,0,General C++ concepts.
+8,0,0,0,1,Puzzles.
+9,1,0,0,0,Design a GMail system.
+10,1,0,0,0,OS mostly concurrency part.
+11,1,0,0,0,"Given a React app that displays some information and has a search bar, how would you fetch the data?"
+12,,,,,How would you filter for the input?
+13,0,0,0,1,How would you display the information?
+14,0,0,1,0,The interview began with 2 of the SDR's and they focused their questions on me as a candidate and whether I would be a good culture fit.
+15,0,0,0,1,The 2nd part of the interview the SDR lead went over my assignment and gave me positive feedback as well as some constructive criticism on how to improve the email I had written (something that I thought was extremely beneficial).
+16,0,0,0,1,"Then she went on to ask questions about the contacts that I provided, and how I went about finding the contacts."
+17,0,0,3,0,"What resources did I use to acquire the information, and why I chose the companies that I did."
+18,0,0,1,0,The final part of the interview was with Sean the Manager (extremely nice) and he mainly asked about the management style that I tend to excel in.
+19,0,0,1,0,What type of culture I work best in.
+20,0,0,1,0,He also asked if I were to be offered the position if I had any reservations.
+21,0,0,1,0,How soon could I start if I were offered the position.
+22,0,0,1,0,What was your experience interviewing at Entelo?
+23,0,0,0,1,What do I do to prepare for the interview?
+24,0,0,0,1,I signed an NDA
+25,0,0,0,1,I cannot give away the interview questions
+26,0,0,0,1,Why are you looking for a job now?
+27,0,0,3,0,"What past project worked on last 1 year , what have you learned new and exciting"
+28,1,0,0,0,Discussion on specific past Project
+29,0,0,0,1,Discussion on exciting past project
+30,1,0,0,0,"Which sort to be used for in memory array, best case and worst case complexity. and why"
+31,,,,,Sort Link-list via merge sort using recursive function.
+32,,,,,How to replicate data from Primary to Secondary (DB) in un-reliable network. Write code at primary and secondary side
+33,0,0,0,1,Consider single secondary as of now.
+34,1,0,0,0,2 criteria : there should be no data loss and seq of data should be maintained.
+35,1,0,0,0,"DS/Algo: Given an array of  +ve number, provide all the possible expression which can create number 24."
+36,0,0,0,1,"Numbers can be used in any order, use math operator (+,-,*,/)."
+37,,,,,"Example: [5,5,1,1]"
+38,0,0,0,1,Expected Answer: (5 - (1/5)) * 5
+39,0,0,1,0,What are your achievements in the past?
+40,1,0,0,0,Given Single Node System which process 1/2 million request.
+41,,,,,"Given ITask interface , Implement task manager which cancel tasks which are not completed in certain time."
+42,1,0,0,0,Data structures
+43,0,0,0,1,trees
+44,1,0,0,1,queue
+45,0,0,0,1,What is the one thing you'd want me to remember about you from this interview?
+46,0,0,1,0,What is your greatest strength?
+47,0,0,1,0,Questions related to previous experience.
+48,0,0,3,0,How can I contribute to the operations with last experience?
+49,0,0,3,0,What is on your resume?
+50,0,0,0,1,What have I read in the past year
+51,0,0,1,0,question très classiques: qu'est ce qui vous a intéressé dans cette offre?
+52,0,0,3,0,What experience do you have?
+53,0,0,3,0,What is the future goal for your career with NOV
+54,0,0,0,1,Você já operou uma ponte rolante alguma vez?
+55,0,0,0,1,Tem experiência?
+56,1,0,0,0,technical question
+57,0,0,0,1,processing about work GT
+58,1,0,0,0,What do you know about BigQuery?
+59,0,0,1,0,"If your college's report is different from yours,"
+60,0,0,0,1,how to deal with that?
+61,0,0,1,0,Give an example of a great sales win.
+62,1,0,0,0,How do you draw and define the level of details for business processes?
+63,1,2,0,0,"Create a entity management system with TS frontend and C# backend, providing real time updates."
+64,0,0,0,1,Timeframe 2 hours.
+65,1,2,0,0,How have you transformed and modernized data platform in your previous company?
+66,0,0,3,0,what thing do you think will be the hardest part to adapt to about the role
+67,0,0,3,0,Why are you interested in this position?
+68,0,1,0,0,Do you have any particular interest in geolocation?
+69,0,0,3,0,Do you have any relevant experience?
+70,1,0,0,0,Cyber security concepts
+71,1,0,0,0,Mitre attack framework
+72,0,0,0,1,Do you have a BA
+73,1,0,0,0,difference between ansible and terraform
+74,0,0,0,1,what do you think about german culture?
+75,0,0,0,1,Fale sobre voce
+76,0,0,3,0,o que espera conseguir na Gerdau
+77,0,1,0,0,What are the most important metrics in measuring success of a campaign?
+78,0,1,0,0,The Hiring Manager asked very specific questions about my current role and how I function as a PMM.
+79,0,0,0,1,It was a fun interview as I didn't have to answer hypothetical questions about the role or how I would fit into the company.
+80,0,0,0,1,He wanted to understand my current knowledge and if my previous experience was a good fit for the role.
+81,0,1,1,0,Tell me about a time you changed your strategy based on new data or information.
+82,0,0,1,0,What is the expectation from this role in the long term
+83,0,0,1,0,Situational questions..
+84,0,0,1,0,name a time when … etc
+85,0,0,0,1,Por que trabalhar na Gerdau?
+86,0,0,1,0,Por que escolheu a empresa?
+87,0,0,1,0,O que de mais motiva?
+88,0,0,1,0,tell me about yourself
+89,0,0,1,0,where do you see yourself in 5 years
+90,1,0,0,0,What 3D modeling software are you most familiar with?
+91,0,0,1,0,What would be an area of professional improvement that you would like to work on?
+92,1,0,0,0,Two pointers question generally.
+93,1,0,0,1,Stack question generally.
+94,1,0,0,0,Demonstrate the use of a multimeter for continuity purposes
+95,0,1,0,0,"Given x information, write a spec to improve the product."
+96,0,0,1,0,Motivations
+97,0,0,0,1,projections
+98,0,0,0,1,compétences techniques
+99,1,0,0,0,Design a system for ingesting 100 million logs per day from various cloud providers.
+100,1,0,0,0,Running 'queries' against the logs.
+101,0,0,0,1,Sending results to B2B customers' on prem monitoring systems.
+102,0,0,0,1,Plus quite a few other requirements.
+103,0,0,3,0,Why do you want to work for NerdWallet
+104,0,0,3,0,Why do you want to work for Vectra
+105,0,0,3,0,I don't think this company deserves 4.9 reviews
+106,0,0,0,1,their HR process all lying about the process
+107,0,0,0,1,interview calls
+108,0,0,1,0,"Please, do not do this with other candidates in the future."
+109,0,0,0,1,Porque eu gostaria de trabalhar na Gerdau
+110,0,1,0,0,Questions mainly associated with Automation
+111,0,0,1,0,"if I asked your current manager,"
+112,0,0,1,0,what would they say you need to work on
+113,0,0,0,1,Safety is a big concern.
+114,0,0,3,0,Any projects/ improvements made in the past.
+115,0,0,1,0,Can you tell us about yourself?
+116,0,0,3,0,Why do you want to work at AXA Mansard?
+117,0,0,1,0,Tell me about a time you lead a team
+118,0,0,0,1,Based on previous experience.
+119,0,0,1,0,Why am I looking for a job.
+120,0,0,0,1,Why do they ask this?
+121,0,0,0,1,Either a person is looking for a new opportunity or has left or has been let go from their previous position.
+122,0,0,3,0,How do you approach disagreement with key stakeholders
+123,0,0,0,1,How long have you been selling Medicare for?
+124,0,0,0,1,The questions were particular about property insurance
+125,0,0,0,1,The questions were particular about bank insurance benefits
+126,0,0,0,1,Basical BQ.
+127,1,0,0,0,"For OA, array/string modification questions"
+128,0,0,0,1,What kind of welding processes do you know?
+129,1,0,0,0,Write a client-server chat app that can serve at least three clients.
+130,0,0,0,1,All messages delivered to all participants within five seconds.
+131,0,0,0,1,You can use internet references.
+132,0,0,0,1,Need to finish in sixty minutes.
+133,1,0,0,0,"The first coding exercise was to make sense of code that was deliberately obfuscated with single-letter functions and arguments. Basically, learn everything about it."
+134,1,0,0,0,The second exercise was to fix code.
+135,1,0,0,0,The third exercise was to parse CSV.
+136,0,0,3,0,What have you learned recently
+137,0,0,1,0,Can You introduce Yourself?
+138,0,0,0,1,What is professional experience?
+139,0,0,0,1,cv biographical review
+140,0,0,0,1,employment status
+141,0,0,1,0,How well do you consider yourself performing under a lot of pressure?
+142,1,0,0,0,"Given a binary tree , create a double linked list in a single tranversal"
+143,1,0,0,0,find x/y without using division operator in a optimal way
+144,0,2,0,0,Put together a spec for a new feature on Entelo's product.
+145,0,0,1,0,What is your top 3 weaknesses?
+146,0,0,0,1,C'est quoi une action ?
+147,,,,,Oblig ...
+148,0,0,1,0,What is a challenge you faced and how did you handle it
+149,1,0,0,0,quite simple SQL query
+150,0,0,0,1,up to JOIN level
+151,0,0,3,0,Pourquoi avoir choisi de candidater pour Mutex ?
+152,1,0,0,0,Algorithm question that is leet code Easy: TwoSum
+153,0,0,1,0,Tell me about a time you had to adapt on the fly during work?
+154,1,0,0,0,The complexity of previous projects I've worked on
+155,0,0,0,1,that kind of thing
+156,0,0,1,0,Share an experience where you had to work in a team?
+157,0,0,3,0,Conte um pouco da sua trajetória profissional.
+158,1,0,0,0,What do to you know about FSLA ?
+159,0,0,3,0,How do you deal with a difficult employee?
+160,0,0,1,0,Você pode me contar um pouco sobre sua trajetória profissional e os cargos que ocupou até aqui?
+161,0,0,1,0,"Qual foi o maior desafio que você enfrentou em sua última posição, e como o superou?"
+162,0,0,1,0,Pode compartilhar um exemplo de um projeto bem-sucedido em que trabalhou?
+163,0,0,1,0,Qual foi o seu papel e quais foram os resultados?
+164,0,0,0,1,Will you close down your own personal website if we offer you this job
+165,0,0,1,0,What motivates you the most?
+166,0,0,3,0,How do you approach a new territory?
+167,0,0,0,1,"Idade,"
+168,0,0,3,0,"fale um pouco sobre você,"
+169,0,0,0,1,"nível de inglês,"
+170,0,0,0,1,disponibilidade de horário
+171,0,0,0,1,Was ist agiles Arbeiten?
+172,0,0,0,1,Was ist Change?
+173,0,0,1,0,Onde se imagina daqui 5 anos
+174,0,0,1,0,What are your future plans?
+175,0,1,0,0,What is your level of proficiency in Figma on a scale of 1 to 10?
+176,0,0,1,0,Tell me about a time you showed leadership qualities
+177,1,0,0,0,What content management systems (CMS) do you know?
+178,0,0,3,0,Tell about yourself
+179,0,0,3,0,Tell about your experience
+180,0,0,0,1,Tests a passer
+181,0,0,0,1,personnalité
+182,0,0,0,1,logique
+183,0,0,1,0,Why are you looking to leave your current company?
+184,0,0,0,1,Tell me examples of previous campaigns that have worked well for you
+185,0,1,0,0,What is your thought process of building campaigns
+186,0,0,1,0,"Scenario questions: If X is not performing well, what would you do"
+187,0,0,0,1,How do you stay up to date
+188,0,0,1,0,Some behavioral questions
+189,0,0,0,4,presentation de mon parcours
+190,0,0,0,1,aucune question piège
+191,0,0,0,1,entretien agréable
+192,0,0,3,0,l'entretien avec le rh suite à un test de personnalité
+193,1,0,0,0,coding challenge from front end which was very extensive
+194,0,1,0,0,adding business logic
+195,1,0,0,0,creating UI elements
+196,,,,,also styling them
+197,0,0,0,1,there wasn't enough time given to solve it
+198,0,0,0,1,You need to be superfast.

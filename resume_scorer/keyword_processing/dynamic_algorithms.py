@@ -188,8 +188,7 @@ class SimilarityScorer:
 
         def transform_calculate_sentence(self, sentence):
             self.sentences.append(sentence)
-            score = self.augmented_cosine_similarity(sentence, self.keyword, 2)
-            #score = self.transform_score(score)
+            score = self.augmented_cosine_similarity(sentence, self.keyword, 3)
             self.scores.append(score)
 
 
@@ -261,9 +260,10 @@ def format_resume(resume_text):
 
 
 class CrossProductSimilarity:
-    def __init__(self, transformer='paraphrase-MiniLM-L6-v2', verbose=True):
+    def __init__(self, transformer='paraphrase-MiniLM-L6-v2', verbose=True, strictness_policy=3):
         self.verbose = verbose
         self.model = SentenceTransformer(transformer)
+        self.strictness_policy = strictness_policy
 
     def _write_log(self, log):
         if self.verbose:
@@ -286,24 +286,50 @@ class CrossProductSimilarity:
         y_embed = self.get_embedding(corpus_y)[0]
         return max(0, 1 - self.augmented_cosine_loss(x_embed, y_embed, k))
 
+    def cosine_similarity(self, corpus_x, corpus_y):
+        x_embed = self.get_embedding(corpus_x)[0]
+        y_embed = self.get_embedding(corpus_y)[0]
+        return 1 - cosine_similarity(x_embed.reshape(1, -1), y_embed.reshape(1, -1))
+
     def calculate_similarity(self, text1, text2):
-        sentences1 = preprocess_text(text1)
-        sentences2 = preprocess_text(text2)
-        chunks1 = chunk_text(sentences1, max_chunk_size=24, overlap=8)
-        chunks2 = chunk_text(sentences2, max_chunk_size=24, overlap=8)
+        """
+
+        :param text1: Correct Answer
+        :param text2: Querying Answer
+        :return:
+        """
+        sentences1 = preprocess_text(text1, remove_stopwords=True)
+        sentences2 = preprocess_text(text2, remove_stopwords=True)
+        chunks1 = chunk_text(sentences1, max_chunk_size=320, overlap=8)
+        chunks2 = chunk_text(sentences2, max_chunk_size=320, overlap=8)
         print('len', len(chunks1), chunks1)
         print('len', len(chunks2), chunks2)
         self.len_diff = abs(len(chunks1) - len(chunks2))
+
+        self.is_complete = len(chunks1) > len(chunks2)
+        print(self.is_complete, self.len_diff)
 
         self._write_log(f"Number of chunks in text1: {len(chunks1)}")
         self._write_log(f"Number of chunks in text2: {len(chunks2)}")
 
         similarity_scores = []
 
-        for chunk1 in chunks1:
-            for chunk2 in chunks2:
-                score = self.augmented_cosine_similarity(chunk1, chunk2, 3)
-                similarity_scores.append(score)
+        for chunk2 in chunks2:
+            # Initialize max score and best matching chunk2
+            max_score = float('-inf')
+            best_chunk2 = None
+
+            # First find the most similar chunk2 using regular cosine similarity
+            for chunk1 in chunks1:
+                score = self.cosine_similarity(chunk2, chunk1)
+                if score > max_score:
+                    max_score = score
+                    best_chunk2 = chunk2
+
+            # Calculate and append the augmented cosine similarity only for the best match
+            if best_chunk2 is not None:
+                augmented_score = self.augmented_cosine_similarity(chunk1, best_chunk2, 5)
+                similarity_scores.append(augmented_score)
 
         def sigmoid(x):
             return 1 / (1 + math.exp(-x))
@@ -311,29 +337,71 @@ class CrossProductSimilarity:
         final_similarity = max(similarity_scores)
         final_similarity = 1 - final_similarity
 
-        self._write_log(f"Final similarity score: {final_similarity}")
+        # self._write_log(f"Final similarity score: {final_similarity}")
         return self.augmented_loss_normalization(final_similarity)
 
+        DENOMINATOR = 0.5
+
+        # base denominator
+
+        factor = (DENOMINATOR + (0.075 * self.strictness_policy)) * 100
+        raw_score = (final_similarity / factor) * 100
+
+        return self.augmented_loss_normalization(raw_score)
+
+    import numpy as np
 
     def augmented_loss_normalization(self, score):
-        # Define the breakpoints
-        lower_bound = -0.3 - (self.len_diff / (9 + (self.len_diff ** 2  ) ))
+        # Adjusted maximum based on strictness policy
+        base_max = 0.6
+        max_increase_per_policy = 0.05
+        target_max = base_max + (max_increase_per_policy * self.strictness_policy)
 
-        middle_point = 0.1 - (self.len_diff / (9 + (self.len_diff ** 2) ))
+        # Define the breakpoints
+        len_diff_factor = self.len_diff / (9 + self.len_diff ** 2)
+        strictness_factor = (5 - self.strictness_policy) / 10
+
+        # completeness is when the answer is shorter.
+        print('completeness', self.is_complete)
+        if self.is_complete:
+            lower_bound = (-0.3 - len_diff_factor) - strictness_factor
+            middle_point = (0.1 - len_diff_factor) - strictness_factor
+        else:
+            lower_bound = (-0.3 + len_diff_factor) - strictness_factor
+            middle_point = (0.1 + strictness_factor)
+
         upper_bound = 0.25
 
-        # Define the target ranges
-        target_min = 0
-        target_max = 1
-        target_high = 0.80
-
         # Clip the score to ensure it's within the expected range
-        score = np.clip(score, lower_bound, upper_bound)
+        # score = np.clip(score, lower_bound, upper_bound)
 
         if score >= middle_point:
-            # For scores between 0 and 0.25, map to 0.85 - 1
-            return target_high + (target_max - target_high) * (score - middle_point) / (
-                        upper_bound - middle_point)
+            # Map to the target range 0.85 - target_max
+            target_high = 0.80
+
+            r_val = target_high + (target_max - target_high) * (score - middle_point) / (
+                    upper_bound - middle_point)
+            print('score is greater than mid', score, r_val)
+            return r_val
         else:
-            # For scores between -1 and 0, map to 0 - 0.85, with a steeper curve
+            # Map to the range 0 - 0.85 with a steeper curve
+            print('score is less than mid')
+            target_min = 0
+            target_high = 0.80
             return target_min + target_high * ((score - lower_bound) / (middle_point - lower_bound)) ** 2
+
+    def sigmoid_adjusted_score(score, strictness_policy):
+        # Compute the adjustment factor
+        adjustment_factor = 0.6 + (0.05 * strictness_policy)
+
+        # Apply sigmoid transformation
+        sigmoid_input = score / adjustment_factor
+        sigmoid_output = 1 / (1 + np.exp(-sigmoid_input))
+
+        # Clip scores above 1
+        sigmoid_output = np.clip(sigmoid_output, 0, 1)
+
+        # Zero out scores below -10
+        if score < -10:
+            return 0
+        return sigmoid_output

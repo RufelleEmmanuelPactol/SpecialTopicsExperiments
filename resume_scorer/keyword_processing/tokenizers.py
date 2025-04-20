@@ -13,7 +13,7 @@ tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 stop_words = set(stopwords.words('english'))
 
 
-def preprocess_text(text):
+def preprocess_text(text, remove_stopwords=True):
     """
     Clean special characters, remove additional spaces, and remove stop words.
 
@@ -32,6 +32,9 @@ def preprocess_text(text):
     # Remove extra whitespace
     text = re.sub(r'\s+', ' ', text).strip()
 
+    if not remove_stopwords:
+        return text
+
     # Remove stop words
     words = text.split()
     cleaned_words = [word for word in words if word not in stop_words]
@@ -39,7 +42,7 @@ def preprocess_text(text):
     return ' '.join(cleaned_words)
 
 
-def chunk_text(text, max_chunk_size=64, overlap=32):
+def chunk_text(text, max_chunk_size=12, overlap=6):
     """
     Chunk the input text into overlapping segments of max_chunk_size tokens.
 

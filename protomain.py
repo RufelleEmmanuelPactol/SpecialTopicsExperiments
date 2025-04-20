@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 
-
+import PersistentCache
 from resume_scorer.free_form_text.kernels import NgramCrossProductSimilarity
 from resume_scorer.resume_preprocessing.deconstructor import pdf_to_text
 from io import BytesIO
@@ -180,20 +180,35 @@ def main():
     elif app_mode == "Anchor Pooling":
         anchor_pooling_app()
 
-
 @st.cache_data
-def generate_anchor_pool(question: str, num_answers: int = 7):
+def get_persistent_cache():
+    return PersistentCache.PersistentCache()
+
+
+def generate_anchor_pool(question: str, num_answers: int = 8, level='college'):
     openai.api_key = os.getenv("OPENAI_API_KEY")
+    if question in get_persistent_cache():
+        print('recovered from cache')
+        return get_persistent_cache().get(question)
+
 
     response = openai.chat.completions.create(
         model="gpt-4-turbo",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant providing diverse answers to questions."},
+            {"role": "system", "content": f"You are a {level} level of person, answering a question. "
+                                          f" Provide {num_answers} unique and diverse answers to the following "
+                                          f"question. The answers are one paragraph in length, and not just one "
+                                          f"sentence. Separate each answer with '|||'. These are the instructions "
+                                          f"written. Each answer should be self-contained, meaning that the idea "
+                                          f"should not spill to other answers (they may have similar ideas, "
+                                          f"but they should NEVER continue nor spill their contexts)"
+                                          f". Answer intelligently."
+                                          f" Now, answer the question. "},
             {"role": "user",
-             "content": f"Please provide {num_answers} unique and diverse answers to the following question. The answers are one paragraph in length, and not just one sentence. Separate each answer with '|||': {question}"}
+             "content": f": {question}"}
         ],
-        temperature=0.8,  # Increase variability in responses
-        max_tokens=4000  # Adjust as needed
+        temperature=0.8,
+        max_tokens=4000
     )
 
     # Split the response into individual answers
@@ -202,44 +217,56 @@ def generate_anchor_pool(question: str, num_answers: int = 7):
     # Clean up any leading/trailing whitespace
     anchor_pool = [answer.strip() for answer in anchor_pool]
 
+    get_persistent_cache().set(question, anchor_pool)
+
     return anchor_pool
 
 
 def anchor_pooling_app():
-    st.title("Anchor Pooling Similarity Scorer")
+    st.title("Anchor Pooling Free-Text Scorer")
 
     question = st.text_area("Enter question:", height=100)
     answer = st.text_area("Enter your answer:", height=200)
+    strictness_policy = st.slider("Strictness Policy", min_value=1, max_value=5, value=3)
 
-    scorer = CrossProductSimilarity(transformer='roberta-base-nli-stsb-mean-tokens')
+    scorer = CrossProductSimilarity(transformer='roberta-base-nli-stsb-mean-tokens', strictness_policy=strictness_policy)
 
     if st.button("Calculate Similarity"):
         if question and answer:
             with st.spinner("Generating anchor pool and calculating similarities..."):
-                anchor_pool = generate_anchor_pool(question)
+                anchor_pool = generate_anchor_pool(question, num_answers=10)
+
 
                 similarities = []
                 for idx, anchor in enumerate(anchor_pool, 1):
+                    scorer.strictness_policy = strictness_policy
                     similarity = scorer.calculate_similarity(anchor, answer)
                     similarities.append({"Anchor": idx, "Similarity": similarity})
 
+
                 df = pd.DataFrame(similarities)
+
                 mode_value = df['Similarity'].mode()[0]
                 mode_count = (df['Similarity'] == mode_value).sum()
 
-                # Set max_similarity based on the mode count
-                if mode_count >= 3:
-                    max_similarity = mode_value
-                else:
-                    max_similarity = df['Similarity'].median()
 
+                # Set max_similarity based on the mode count
+                if (df['Similarity'] == 1).sum() > 3:
+                    max_similarity = 1
+                else:
+                    max_similarity = df['Similarity'].quantile(0.75)
+
+                # max_similarity = df['Similarity'].max()
                 st.subheader("Similarity Scores")
                 st.dataframe(df)
 
                 st.subheader("Maximum Similarity Score")
                 st.write(f"The maximum similarity score is: {max_similarity:.4f}")
 
-                st.header(f"{max_similarity * 100:.2f}/100")
+                with st.expander(label='See anchors'):
+                    st.write(anchor_pool)
+
+                st.header(f"{max(min(100, max_similarity * 100), 0):.2f}/100")
 
                 if max_similarity > 0.8:
                     st.success("Your answer is highly similar to the best anchor.")
